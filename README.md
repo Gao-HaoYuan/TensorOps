@@ -1,0 +1,2 @@
+# Introduction
+This is a component specifically designed for tensor kernel. It draws inspiration from Torch and Cutlass, processing higher-level Tensors into `Layout` class, and invoking device resources through the functin `gpu_kernel`. It also mimics torch’s `Half`, but unlike torch, it directly supports computation with CUDA’s `__half` type.
