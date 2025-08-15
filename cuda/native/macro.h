@@ -11,7 +11,8 @@
     do {                                                                \
         if (!(cond)) {                                                  \
             LOG_ERROR("Assert: " #cond __VA_OPT__(", " ) __VA_ARGS__);  \
-        }                               \
+            std::abort();                                               \
+        }                                                               \
     } while(0)
 
 

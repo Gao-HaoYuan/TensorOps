@@ -1,5 +1,4 @@
 #include <numeric>
-#include <utility>
 #include <algorithm>
 
 #include "common.h"

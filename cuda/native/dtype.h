@@ -113,7 +113,7 @@ inline bool isSignedType(ScalarType t) {
     switch (t) {
         FORALL_SCALAR_TYPES(CASE_ISSIGNED)
         default:
-            return "UNKNOWN_SCALAR";
+            ASSERT(false, "UNKNOWN_SCALAR");
     }
 #undef CASE_ISSIGNED
 }

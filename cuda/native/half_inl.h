@@ -43,6 +43,7 @@ inline __device__ Half __ldg(const Half* ptr) {
 }
 #endif
 
+// ----------------------- All Basic Ops ----------------------------
 INLINE_HOST_DEVICE Half operator+(const Half& a, const Half& b) {
 #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530)
     return __hadd(static_cast<__half>(a), static_cast<__half>(b));
@@ -224,6 +225,119 @@ INLINE_HOST_DEVICE Half operator*(int64_t a, Half b) {
 INLINE_HOST_DEVICE Half operator/(int64_t a, Half b) {
     return static_cast<Half>(a) / b;
 }
+
+// --------------------------- Compare --------------------------------
+INLINE_HOST_DEVICE bool operator==(const Half& a, const Half& b) {
+#if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530)
+    return __heq(static_cast<__half>(a), static_cast<__half>(b));
+#else
+    return static_cast<float>(a) == static_cast<float>(b);
+#endif
+}
+
+INLINE_HOST_DEVICE bool operator!=(const Half& a, const Half& b) {
+#if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530)
+    return __hne(static_cast<__half>(a), static_cast<__half>(b));
+#else
+    return static_cast<float>(a) != static_cast<float>(b);
+#endif
+}
+
+INLINE_HOST_DEVICE bool operator<(const Half& a, const Half& b) {
+#if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530)
+    return __hlt(static_cast<__half>(a), static_cast<__half>(b));
+#else
+    return static_cast<float>(a) < static_cast<float>(b);
+#endif
+}
+
+INLINE_HOST_DEVICE bool operator<=(const Half& a, const Half& b) {
+#if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530)
+    return __hle(static_cast<__half>(a), static_cast<__half>(b));
+#else
+    return static_cast<float>(a) <= static_cast<float>(b);
+#endif
+}
+
+INLINE_HOST_DEVICE bool operator>(const Half& a, const Half& b) {
+#if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530)
+    return __hgt(static_cast<__half>(a), static_cast<__half>(b));
+#else
+    return static_cast<float>(a) > static_cast<float>(b);
+#endif
+}
+
+INLINE_HOST_DEVICE bool operator>=(const Half& a, const Half& b) {
+#if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 530)
+    return __hge(static_cast<__half>(a), static_cast<__half>(b));
+#else
+    return static_cast<float>(a) >= static_cast<float>(b);
+#endif
+}
+
+// Half vs float
+INLINE_HOST_DEVICE bool operator== (Half a, float b) { return static_cast<float>(a) == b; }
+INLINE_HOST_DEVICE bool operator!= (Half a, float b) { return static_cast<float>(a) != b; }
+INLINE_HOST_DEVICE bool operator<  (Half a, float b) { return static_cast<float>(a) <  b; }
+INLINE_HOST_DEVICE bool operator<= (Half a, float b) { return static_cast<float>(a) <= b; }
+INLINE_HOST_DEVICE bool operator>  (Half a, float b) { return static_cast<float>(a) >  b; }
+INLINE_HOST_DEVICE bool operator>= (Half a, float b) { return static_cast<float>(a) >= b; }
+
+INLINE_HOST_DEVICE bool operator== (float a, const Half b) { return a == static_cast<float>(b); }
+INLINE_HOST_DEVICE bool operator!= (float a, const Half b) { return a != static_cast<float>(b); }
+INLINE_HOST_DEVICE bool operator<  (float a, const Half b) { return a <  static_cast<float>(b); }
+INLINE_HOST_DEVICE bool operator<= (float a, const Half b) { return a <= static_cast<float>(b); }
+INLINE_HOST_DEVICE bool operator>  (float a, const Half b) { return a >  static_cast<float>(b); }
+INLINE_HOST_DEVICE bool operator>= (float a, const Half b) { return a >= static_cast<float>(b); }
+
+// Half vs double
+INLINE_HOST_DEVICE bool operator== (Half a, double b) { return static_cast<double>(a) == b; }
+INLINE_HOST_DEVICE bool operator!= (Half a, double b) { return static_cast<double>(a) != b; }
+INLINE_HOST_DEVICE bool operator<  (Half a, double b) { return static_cast<double>(a) <  b; }
+INLINE_HOST_DEVICE bool operator<= (Half a, double b) { return static_cast<double>(a) <= b; }
+INLINE_HOST_DEVICE bool operator>  (Half a, double b) { return static_cast<double>(a) >  b; }
+INLINE_HOST_DEVICE bool operator>= (Half a, double b) { return static_cast<double>(a) >= b; }
+
+INLINE_HOST_DEVICE bool operator== (double a, Half b) { return a == static_cast<double>(b); }
+INLINE_HOST_DEVICE bool operator!= (double a, Half b) { return a != static_cast<double>(b); }
+INLINE_HOST_DEVICE bool operator<  (double a, Half b) { return a <  static_cast<double>(b); }
+INLINE_HOST_DEVICE bool operator<= (double a, Half b) { return a <= static_cast<double>(b); }
+INLINE_HOST_DEVICE bool operator>  (double a, Half b) { return a >  static_cast<double>(b); }
+INLINE_HOST_DEVICE bool operator>= (double a, Half b) { return a >= static_cast<double>(b); }
+
+// Half vs int
+INLINE_HOST_DEVICE bool operator== (Half a, int b) { return a == static_cast<Half>(b); }
+INLINE_HOST_DEVICE bool operator!= (Half a, int b) { return a != static_cast<Half>(b); }
+INLINE_HOST_DEVICE bool operator<  (Half a, int b) { return a <  static_cast<Half>(b); }
+INLINE_HOST_DEVICE bool operator<= (Half a, int b) { return a <= static_cast<Half>(b); }
+INLINE_HOST_DEVICE bool operator>  (Half a, int b) { return a >  static_cast<Half>(b); }
+INLINE_HOST_DEVICE bool operator>= (Half a, int b) { return a >= static_cast<Half>(b); }
+
+INLINE_HOST_DEVICE bool operator== (int a, Half b) { return static_cast<Half>(a) == b; }
+INLINE_HOST_DEVICE bool operator!= (int a, Half b) { return static_cast<Half>(a) != b; }
+INLINE_HOST_DEVICE bool operator<  (int a, Half b) { return static_cast<Half>(a) <  b; }
+INLINE_HOST_DEVICE bool operator<= (int a, Half b) { return static_cast<Half>(a) <= b; }
+INLINE_HOST_DEVICE bool operator>  (int a, Half b) { return static_cast<Half>(a) >  b; }
+INLINE_HOST_DEVICE bool operator>= (int a, Half b) { return static_cast<Half>(a) >= b; }
+
+// Half vs int64_t
+INLINE_HOST_DEVICE bool operator== (Half a, int64_t b) { return a == static_cast<Half>(b); }
+INLINE_HOST_DEVICE bool operator!= (Half a, int64_t b) { return a != static_cast<Half>(b); }
+INLINE_HOST_DEVICE bool operator<  (Half a, int64_t b) { return a <  static_cast<Half>(b); }
+INLINE_HOST_DEVICE bool operator<= (Half a, int64_t b) { return a <= static_cast<Half>(b); }
+INLINE_HOST_DEVICE bool operator>  (Half a, int64_t b) { return a >  static_cast<Half>(b); }
+INLINE_HOST_DEVICE bool operator>= (Half a, int64_t b) { return a >= static_cast<Half>(b); }
+
+INLINE_HOST_DEVICE bool operator== (int64_t a, Half b) { return static_cast<Half>(a) == b; }
+INLINE_HOST_DEVICE bool operator!= (int64_t a, Half b) { return static_cast<Half>(a) != b; }
+INLINE_HOST_DEVICE bool operator<  (int64_t a, Half b) { return static_cast<Half>(a) <  b; }
+INLINE_HOST_DEVICE bool operator<= (int64_t a, Half b) { return static_cast<Half>(a) <= b; }
+INLINE_HOST_DEVICE bool operator>  (int64_t a, Half b) { return static_cast<Half>(a) >  b; }
+INLINE_HOST_DEVICE bool operator>= (int64_t a, Half b) { return static_cast<Half>(a) >= b; }
+
+// -------------------------------- min max ----------------------------------
+INLINE_HOST_DEVICE Half max(const Half& a, const Half& b) { return a > b ? a : b; }
+INLINE_HOST_DEVICE Half min(const Half& a, const Half& b) { return a < b ? a : b; }
 
 } // end of namespace witin
 

@@ -26,6 +26,7 @@ SharedLayout create_layout(
     return MakeLayout(data, shape, stride, view_offset, options, name);
 }
 
+template<typename T>
 struct AddOperator {
     static constexpr int N = 3;
     static constexpr int MaxThreadsPerBlock = 256;
@@ -33,19 +34,13 @@ struct AddOperator {
     static constexpr dim3 block{256, 1, 1};
     using Params = IterParams<N>;
 
-    INLINE_HOST_DEVICE 
+    INLINE_HOST_DEVICE
     void operator()(Params const params, const int64_t* offsets, char*) {
-        int64_t idx = threadIdx.x + blockIdx.x * blockDim.x;
-        if (idx >= params.numel) return;
+        auto output_ptr = static_cast<T*>(params.ptrs[0]) + offsets[0];
+        auto input0_ptr = static_cast<T*>(params.ptrs[1]) + offsets[1];
+        auto input1_ptr = static_cast<T*>(params.ptrs[2]) + offsets[2];
 
-        float* out = static_cast<float*>(params.ptrs[0]);
-        float* in_0 = static_cast<float*>(params.ptrs[1]);
-        float* in_1 = static_cast<float*>(params.ptrs[2]);
-
-        float val0 = in_0[idx];
-        float val1 = in_1[idx];
-
-        out[idx] = val0 + val1;
+        *output_ptr = *input0_ptr + *input1_ptr;
     }
 };
 
@@ -101,7 +96,7 @@ TEST(NativeTest, Common) {
     }
 
     OperandLayout operand = config.build();
-    gpu_kernel(operand, AddOperator{});
+    gpu_kernel(operand, AddOperator<float>{});
 
     float* h_result = (float*)malloc(total_size);
     cudaMemcpy(h_result, output, total_size, cudaMemcpyDeviceToHost);

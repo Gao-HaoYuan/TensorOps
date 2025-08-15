@@ -38,7 +38,7 @@ void compute_offsets(int64_t idx, const int64_t* sizes, const int64_t* strides, 
 
         #pragma unroll
         for (int arg = 0; arg < NARGS; ++arg) {
-            offsets[arg] += mod * strides[arg * ndims + dim];
+            offsets[arg] += mod * strides[arg * MAX_NDIMS + dim];
         }
     }
 }
@@ -48,10 +48,12 @@ __global__ static
 #ifdef __CUDACC__
 __launch_bounds__(Operator::MaxThreadsPerBlock, Operator::MinBlocksPerMultiprocessor)
 #endif // __CUDACC__
-void device_kernel(GRID_CONSTANT typename Operator::Params const params) {
+void device_kernel(
+    Operator op,
+    GRID_CONSTANT typename Operator::Params const params
+) {
     // Dynamic shared memory base pointer
     extern __shared__ char smem[];
-    Operator op;
 
     int64_t idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx >= params.numel) return;
@@ -68,11 +70,12 @@ void kernel_launch(
     dim3 const block_dims,
     size_t const smem_size,
     cudaStream_t cuda_stream,
-    const Params &kernel_params,
+    Kernel func,
+    const Params &params,
     bool launch_with_pdl = false
 ) {
     if (!launch_with_pdl) {
-        device_kernel<Kernel><<<grid_dims, block_dims, smem_size, cuda_stream>>>(kernel_params);
+        device_kernel<Kernel><<<grid_dims, block_dims, smem_size, cuda_stream>>>(func, params);
     } else {
 #if ((__CUDACC_VER_MAJOR__ >= 12) || ((__CUDACC_VER_MAJOR__ == 11) && (__CUDACC_VER_MINOR__ >= 8)))
 #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ < 900)
@@ -91,7 +94,7 @@ void kernel_launch(
         attrs[0].val.programmaticStreamSerializationAllowed = 1;
         config.numAttrs = 1;
 
-        cudaError_t launch_result = cudaLaunchKernelEx(&config, &device_kernel<Kernel>, kernel_params);
+        cudaError_t launch_result = cudaLaunchKernelEx(&config, &device_kernel<Kernel>, func, params);
         if (cudaSuccess != launch_result) {
             ASSERT(false, "kernel_launch: cudaLaunchKernelEx failed with error: ", cudaGetErrorString(launch_result));
         }
@@ -107,7 +110,7 @@ void kernel_launch(
 template <typename func_t>
 void gpu_kernel(
     OperandLayoutBase& iter, 
-    const func_t& f, 
+    func_t func, 
     cudaStream_t stream = cudaStreamDefault
 ) {
     const int operands = iter.nlayouts();
@@ -144,7 +147,7 @@ void gpu_kernel(
     // NOTE: element-wise 操作不需要共享内存
     // const size_t smem_size = func_t::smem_size;
 
-    kernel_launch<func_t>(grid, block, 0, stream, params);
+    kernel_launch<func_t>(grid, block, 0, stream, func, params);
 }
 
 } // namespace witin
