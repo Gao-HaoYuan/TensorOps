@@ -12,7 +12,6 @@ SharedLayout create_layout(
     void* data,
     const SmallVector& shape,
     const SmallVector& stride,
-    const SmallVector& view_offset,
     const ScalarType& dtype,
     const Device& device,
     const MemoryFormat& memory_format,
@@ -23,7 +22,7 @@ SharedLayout create_layout(
     options.set_device(device);
     options.set_memory_format(memory_format);
 
-    return MakeLayout(data, shape, stride, view_offset, options, name);
+    return MakeLayout(data, shape, stride, options, name);
 }
 
 template<typename T>
@@ -80,9 +79,9 @@ TEST(NativeTest, Common) {
     cudaMemcpy(input0, h_input0, total_size, cudaMemcpyHostToDevice);
     cudaMemcpy(input1, h_input1, total_size, cudaMemcpyHostToDevice);
 
-    auto lay_in0 = create_layout(input0, {height, width}, {width, 1}, {0, 0}, dtype, device, MemoryFormat::Contiguous, "input0");
-    auto lay_in1 = create_layout(input1, {height, width}, {width, 1}, {0, 0}, dtype, device, MemoryFormat::Contiguous, "input1");
-    auto lay_out = create_layout(output, {height, width}, {width, 1}, {0, 0}, dtype, device, MemoryFormat::Contiguous, "output");
+    auto lay_in0 = create_layout(input0, {height, width}, {width, 1}, dtype, device, MemoryFormat::Contiguous, "input0");
+    auto lay_in1 = create_layout(input1, {height, width}, {width, 1}, dtype, device, MemoryFormat::Contiguous, "input1");
+    auto lay_out = create_layout(output, {height, width}, {width, 1}, dtype, device, MemoryFormat::Contiguous, "output");
 
     OperandLayoutConfig config;
     config.check_all_same_device(true);

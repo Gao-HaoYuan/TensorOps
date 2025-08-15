@@ -13,14 +13,12 @@ struct Layout {
         void* d,
         const SmallVector& shape,
         const SmallVector& stride,
-        const SmallVector& view_offset,
         const LayoutOptions& options,
         const std::string& name = ""
     ) : 
         data_(d),
         shape_(std::move(shape)),
         stride_(std::move(stride)),
-        view_offset_(std::move(view_offset)),
         name_(std::move(name)) 
     {
         if (!options.has_dtype() || !options.has_device() || !options.has_memory_format()) {
@@ -34,12 +32,8 @@ struct Layout {
     DISABLE_COPY_AND_ASSIGN(Layout);
 
     void* data() const noexcept { return data_; }
-
     const SmallVector& shape() const noexcept { return shape_; }
     const SmallVector& stride() const noexcept { return stride_; }
-    // NOTE: Torch will offset the date ptr, the var maybe unused.
-    const SmallVector& view_offset() const noexcept { return view_offset_; }
-
     const LayoutOptions& options() const noexcept { return options_; }
     const ScalarType& dtype() const noexcept { return options_.dtype(); }
     const Device& device() const noexcept { return options_.device(); }
@@ -52,10 +46,7 @@ private:
 
     SmallVector shape_;
     SmallVector stride_;
-    SmallVector view_offset_;
-
     LayoutOptions options_;
-    
     std::string name_;
 
 private:
