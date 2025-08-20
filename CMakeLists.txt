@@ -68,16 +68,15 @@ if(ENABLE_DEBUG)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
     set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G -O0 --extended-lambda --expt-relaxed-constexpr -Xcompiler=-fPIC -Xcompiler=-Wno-sign-compare -Xcompiler=-g")
 else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -fPIC -march=native -mtune=native -funroll-loops -fomit-frame-pointer -Wno-sign-compare -Wattributes")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wno-sign-compare -Wattributes")
     set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -O3 --extended-lambda --expt-relaxed-constexpr -Xcompiler=-fPIC -Xcompiler=-Wno-sign-compare")
 endif()
 
 # === Source files ===
-set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/cuda)
 file(GLOB CUDA_SOURCES
-    "${SOURCE_DIR}/native/*.cu"
-    "${SOURCE_DIR}/native/*.cpp"
-    "${SOURCE_DIR}/logger/*.cpp"
+    "${CMAKE_SOURCE_DIR}/native/*.cpp"
+    "${CMAKE_SOURCE_DIR}/logger/*.cpp"
+    "${CMAKE_SOURCE_DIR}/native/cuda/*.cu"
 )
 
 # === compile and install target ===
@@ -85,8 +84,9 @@ set(TARGET_NAME cuKernel)
 
 add_library(${TARGET_NAME} STATIC ${CUDA_SOURCES})
 target_include_directories(${TARGET_NAME} PUBLIC
-    ${SOURCE_DIR}/logger
-    ${SOURCE_DIR}/native
+    ${CMAKE_SOURCE_DIR}/logger
+    ${CMAKE_SOURCE_DIR}/native
+    ${CMAKE_SOURCE_DIR}/native/include
     ${CUDA_TOOLKIT_ROOT_DIR}/include
 )
 target_link_libraries(${TARGET_NAME} PRIVATE
@@ -100,8 +100,8 @@ install(TARGETS ${TARGET_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 
 # === Test executable ===
 file(GLOB_RECURSE TEST_SOURCES 
-    "${SOURCE_DIR}/native/test/*.cu"
-    "${SOURCE_DIR}/native/test/*.cpp"
+    "${CMAKE_SOURCE_DIR}/test/*.cu"
+    "${CMAKE_SOURCE_DIR}/test/*.cpp"
 )
 
 if(TEST_SOURCES)

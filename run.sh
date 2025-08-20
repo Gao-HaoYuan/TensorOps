@@ -1,13 +1,11 @@
 #!/bin/bash
 
-INSTALL_DIR="$(pwd)/install"
-
 export MAX_JOBS=$(nproc)
 
 bash ./build.sh \
-    --install-dir ${INSTALL_DIR} \
-    --enable-debug OFF 
+    --install-dir $PWD/install \
+    --enable-debug OFF
 
-pushd "${INSTALL_DIR}/bin"
+pushd "$PWD/install/bin"
 ./test_main
 popd
